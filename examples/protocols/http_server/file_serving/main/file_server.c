@@ -78,7 +78,15 @@ static esp_err_t http_resp_dir_html(httpd_req_t *req, const char *dirpath)
     struct dirent *entry;
     struct stat entry_stat;
 
-    DIR *dir = opendir(dirpath);
+    
+    char dirpath_corrected[FILE_PATH_MAX];
+    strcpy(dirpath_corrected, dirpath);
+    file_server_data * server_data = (file_server_data *) req->user_ctx;
+    if ((strlen(dirpath_corrected)-1) > strlen(server_data->base_path))      // if dirpath is not mountpoint, the last "\" needs to be removed
+        dirpath_corrected[strlen(dirpath_corrected)-1] = '\0';
+    DIR *dir = opendir(dirpath_corrected);
+    
+
     const size_t dirpath_len = strlen(dirpath);
 
     /* Retrieve the base path of file storage to construct the full path */
